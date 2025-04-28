@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>グラフ/図 ビューア</title>
+    <style>
+        body{font-family:sans-serif;display:flex;flex-direction:column;height:100vh;margin:0;padding:10px;box-sizing:border-box;}
+        h1{text-align:center;margin-top:0;}
+        .controls{margin-bottom:10px;display:flex;align-items:center;flex-wrap:wrap;gap:15px;}
+        .control-group{display:flex;align-items:center;gap:5px;}
+        .notation-select label{margin-right:15px;}
+        .container{display:flex;flex-direction:column;flex-grow:1;gap:10px;}
+        .input-area,.output-area{flex:1;display:flex;flex-direction:column;border:1px solid #ccc;padding:10px;box-sizing:border-box;overflow:hidden;}
+        .input-area label,.output-area label{font-weight:bold;margin-bottom:5px;}
+        textarea{flex-grow:1;font-family:monospace;font-size:.9em;resize:none;padding:5px;border:1px solid #eee;box-sizing:border-box;}
+        .output-content{flex-grow:1;overflow:auto;border:1px solid #eee;padding:5px;display:flex;justify-content:center;align-items:flex-start;position:relative;}
+        .error{color:red;font-weight:bold;}
+        .output-content svg{max-width:100%;height:auto;display:block;}
+        #templateSelect,#downloadFormat,#downloadButton{padding:5px;font-size:.9em;border:1px solid #ccc;border-radius:4px;vertical-align:middle;}
+        #downloadButton{padding:5px 10px;background-color:#28a745;color:white;border:none;cursor:pointer;font-size:.9em;border-radius:4px;}
+        #downloadButton:hover{background-color:#218838;}
+        #downloadButton:disabled{background-color:#ccc;cursor:not-allowed;}
+        .loading-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.8);display:flex;justify-content:center;align-items:center;font-size:1.2em;font-weight:bold;color:#333;z-index:10;}
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:!1});</script>
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YP7BYDG752"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-YP7BYDG752');
+</script>
+<body>
+<h1>グラフ/図 ビューア</h1>
+<div class="controls">
+    <div class="control-group notation-select">
+        記法を選択:
+        <label><input type="radio" name="notation" value="dot" checked> DOT</label>
+        <label><input type="radio" name="notation" value="mermaid"> Mermaid</label>
+    </div>
+    <div class="control-group template-select">
+        テンプレート:
+        <select id="templateSelect" disabled><option value="">テンプレートを読み込み中...</option></select>
+    </div>
+    <div class="control-group download-controls">
+        ダウンロード:
+        <select id="downloadFormat" disabled><option value="svg">SVG</option><option value="png" selected>PNG</option><option value="jpg">JPG</option></select>
+        <button id="downloadButton" disabled>ダウンロード</button>
+    </div>
+</div>
+<div class="container">
+    <div class="input-area">
+        <label for="dotInput">コードをここに記述:</label>
+        <textarea id="dotInput"></textarea>
+    </div>
+    <div class="output-area">
+        <label>図:</label>
+        <div id="output" class="output-content">
+            <p>テンプレートを選択するか、コードを記述するとここに図が表示されます。</p>
+            <div id="loadingOverlay" class="loading-overlay" style="display: none;">生成中...</div>
+        </div>
+    </div>
+</div>
+<script>
+    let a;const b=400;
+    const c=document.getElementById('downloadButton'),d=document.getElementById('downloadFormat'),e=document.getElementById('output'),f=document.getElementById('dotInput'),g=document.getElementById('loadingOverlay'),h=document.querySelectorAll('input[name="notation"]'),i=document.getElementById('templateSelect');
+    let j=[];
+    function k(l){g.style.display=l?'flex':'none';}
+    function m(){
+        const l=e.querySelector('svg');
+        c.disabled=!l;d.disabled=!l;
+    }
+    async function n(){
+        const l=f.value,o=document.querySelector('input[name="notation"]:checked').value;
+        c.disabled=!0;d.disabled=!0;
+        e.innerHTML='';e.classList.remove('error');
+        if(!l.trim()){e.innerHTML='<p>テンプレートを選択するか、コードを記述するとここに図が表示されます。</p>';m();return;}
+        k(!0);
+        try{
+            let p;
+            if(o==='dot'){const q=new Viz();p=await q.renderString(l,{format:'svg'});}
+            else if(o==='mermaid'){const r='mermaid-svg-'+Date.now();const s=await mermaid.render(r,l);p=s.svg;}
+            else{throw new Error("不明な記法: "+o);}
+            e.innerHTML=p;
+        }catch(t){e.innerHTML='<p class="error">'+o.toUpperCase()+' パースエラー:<br>'+t+'</p>';}
+        finally{k(!1);m();}
+    }
+    function o(p,q){
+        return new Promise((r,s)=>{
+            const t=q.getContext('2d');t.clearRect(0,0,q.width,q.height);
+            const u=new XMLSerializer().serializeToString(p);
+            const v='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(u)));
+            const w=new Image();
+            w.onload=()=>{t.drawImage(w,0,0,q.width,q.height);r();};
+            w.onerror=x=>{console.error("Error loading SVG into Image:",x);s(new Error("SVGを画像として読み込めませんでした。"));};
+            w.src=v;
+        });
+    }
+    async function p(q){
+        const r=e.querySelector('svg');if(!r){throw new Error('ダウンロードできる図（SVG要素）が見つかりません。');}
+        k(!0);
+        try{
+            const s=r.getBoundingClientRect();const t=s.width,u=s.height;
+            const v=document.createElement('canvas');v.width=t;v.height=u;
+            await o(r,v);
+            const w=q==='png'?'image/png':'image/jpeg',x=q==='jpg'?0.8:undefined;
+            const y=await new Promise((z,A)=>{v.toBlob(z,w,x);});
+            const B=URL.createObjectURL(y);const C=document.createElement('a');C.href=B;
+            const D=document.querySelector('input[name="notation"]:checked').value;
+            const E=`${D}_diagram_${Date.now()}.${q}`;C.download=E;
+            document.body.appendChild(C);C.click();
+            document.body.removeChild(C);URL.revokeObjectURL(B);
+        }catch(F){console.error("Error converting SVG to image or downloading:",F);alert('画像の変換またはダウンロードに失敗しました:\n'+F.message);}
+        finally{k(!1);}
+    }
+    async function q(){
+        const r=d.value;
+        if(r==='svg'){
+            const s=e.querySelector('svg');if(!s){alert('ダウンロードできる図がありません。');return;}
+            const t=new XMLSerializer().serializeToString(s);
+            const u=new Blob([t],{type:'image/svg+xml;charset=utf-8'});
+            const v=URL.createObjectURL(u);const w=document.createElement('a');w.href=v;
+            const x=document.querySelector('input[name="notation"]:checked').value;
+            const y=`${x}_diagram_${Date.now()}.svg`;w.download=y;
+            document.body.appendChild(w);w.click();document.body.removeChild(w);URL.revokeObjectURL(v);
+        }else if(r==='png'||r==='jpg'){await p(r);}
+    }
+    async function r(){
+        try{
+            const s=await fetch('templates.json');if(!s.ok){throw new Error(`HTTP error! status: ${s.status}`);}
+            j=await s.json();
+            i.innerHTML='';
+            j.forEach((t,u)=>{const v=document.createElement('option');v.value=u;v.textContent=t.name;i.appendChild(v);});
+            i.disabled=!1;
+            if(j.length>0){t(0);}
+            else{f.value='';e.innerHTML='<p>テンプレートが読み込めませんでした。またはテンプレートがありません。コードを記述してください。</p>';m();}
+        }catch(t){
+            console.error('テンプレートの読み込みに失敗しました:',t);
+            i.innerHTML='<option value="">テンプレートの読み込みエラー</option>';i.disabled=!0;
+            f.value='';e.innerHTML='<p class="error">テンプレートの読み込みに失敗しました。<br>'+t.message+'</p>';m();
+        }
+    }
+    function t(u){
+        if(u>=0&&u<j.length){
+            const v=j[u];
+            f.value=v.code;
+            h.forEach(radio=>{if(radio.value===v.notation){radio.checked=!0;}});
+            n();
+        }
+    }
+    window.onload=()=>{
+        f.addEventListener('input',()=>{clearTimeout(a);a=setTimeout(n,b);});
+        h.forEach(radio=>{radio.addEventListener('change',()=>{clearTimeout(a);n();});});
+        i.addEventListener('change',l=>{const sI=l.target.value;if(sI!==""){t(parseInt(sI,10));}});
+        c.addEventListener('click',q);
+        r();
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>JSON Converter</title>
+    <style>
+        body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;}
+        .container{display:flex;width:90%;max-width:1200px;margin-bottom:20px;}
+        textarea,pre{flex:1;margin:5px;padding:10px;border:1px solid #ddd;font-family:monospace;font-size:14px;}
+        textarea{height:300px;}
+        pre{background-color:#f4f4f4;white-space:pre-wrap;overflow-y:auto;}
+        .button-container{margin-bottom:10px;}
+        button{padding:8px 15px;cursor:pointer;}
+        .description{margin-top:20px;padding:15px;border-top:1px solid #ccc;font-size:.9em;color:#555;background-color:#fff;box-shadow:0 -2px 5px rgba(0,0,0,.05);}
+    </style>
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YP7BYDG752"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-YP7BYDG752');
+</script>
+<body>
+<h1>JSON Converter</h1>
+<div class="button-container">
+    <button onclick="formatJSON()">整形 →</button>
+    <button onclick="minifyJSON()">← 圧縮</button>
+</div>
+<div class="container">
+    <textarea id="jsonInput" placeholder="ここにJSONを入力してください"></textarea>
+    <pre id="jsonOutput">整形されたJSONが表示されます</pre>
+</div>
+<div class="description">
+    <h2>説明</h2>
+    <p>このツールは、JSON文字列の整形（可読性を高めるためのインデント付加）と圧縮（余分な空白や改行を削除）を相互に行うことができます。</p>
+    <p><strong>使い方:</strong></p>
+    <ol>
+        <li>左側のテキストエリアにJSON形式の文字列を入力してください。</li>
+        <li>「整形 →」ボタンをクリックすると、右側のエリアにインデントされた整形済みのJSONが表示されます。</li>
+        <li>右側の整形済みJSONを元に、左側のテキストエリアに圧縮されたJSONを表示したい場合は、「← 圧縮」ボタンをクリックしてください。</li>
+    </ol>
+    <p><strong>注意点:</strong></p>
+    <ul>
+        <li>入力したデータは外部と通信されません。</li>
+        <li>入力するJSONは正しい形式である必要があります。形式が正しくない場合、エラーメッセージが表示されます。</li>
+        <li>圧縮機能は、整形されたJSONの内容を解析して空白や改行を削除するため、右側のエリアに正しいJSONが表示されていることを確認してからご利用ください。</li>
+    </ul>
+</div>
+<script>
+    const a=document.getElementById('jsonInput'),b=document.getElementById('jsonOutput');
+    function formatJSON(){
+        const c=a.value;
+        try{const d=JSON.parse(c);b.textContent=JSON.stringify(d,null,2);}
+        catch(e){b.textContent="無効なJSON形式です。\n"+e;}
+    }
+    function minifyJSON(){
+        const c=b.textContent;
+        try{const d=JSON.parse(c);a.value=JSON.stringify(d);}
+        catch(e){a.value="無効な整形済みJSONです。\n"+e;}
+    }
+</script>
+</body>
+</html>
