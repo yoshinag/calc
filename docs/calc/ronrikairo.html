@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>論理回路図示ツール</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin-bottom: 50px;
+        }
+        #circuitDefinition {
+            width: 95%;
+            height: 200px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        #svgContainer {
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            width: 100%;
+            height: 600px;
+            overflow: auto;
+            margin-bottom: 10px;
+        }
+        svg {
+            display: block;
+        }
+
+        .gate {
+            stroke: black;
+            stroke-width: 1;
+            fill: lightblue;
+        }
+        .gate-not-circle {
+            fill: black;
+        }
+        .gate-text {
+            font-family: sans-serif;
+            font-size: 12px;
+            text-anchor: middle;
+            dominant-baseline: central;
+            user-select: none;
+            pointer-events: none;
+        }
+        .connection {
+            stroke: black;
+            stroke-width: 1;
+            fill: none;
+        }
+        .pin-line {
+            stroke: black;
+            stroke-width: 1;
+        }
+        .section-title {
+            margin-top: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .logic-symbols-list {
+            list-style: none;
+            padding: 0;
+        }
+        .logic-symbols-list li {
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .logic-symbols-list li strong {
+            display: inline-block;
+            min-width: 80px;
+        }
+        .download-controls {
+            margin-bottom: 20px;
+        }
+
+        details {
+            margin-top: 20px;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 0;
+        }
+        summary::marker, summary::-webkit-details-marker {
+            margin-right: 5px;
+        }
+        details > p, details > ul, details > pre {
+            margin-top: 10px;
+        }
+        details .json-code {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        details .property-list {
+            list-style: disc;
+            margin-left: 20px;
+        }
+        details .property-list li {
+            border: none;
+            padding: 0;
+            margin-bottom: 5px;
+        }
+
+        /* Table styles for truth tables */
+        .truth-table {
+            border-collapse: collapse;
+            margin: 10px 0;
+            min-width: 150px;
+            text-align: center;
+        }
+        .truth-table th, .truth-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .truth-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YP7BYDG752"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-YP7BYDG752');
+</script>
+<body>
+
+<h1>論理回路図示ツール (簡易版)</h1>
+
+<p>
+    下のテキストエリアに回路構造をJavaScriptオブジェクト形式で記述し、「図を描画」ボタンを押してください。<br>
+    回路構造の例は初期表示されています。
+</p>
+
+<textarea id="circuitDefinition">
+{
+    "gates": [
+        { "id": "in_A", "type": "INPUT", "output": "A", "pos": { "x": 50, "y": 100 } },
+        { "id": "in_B", "type": "INPUT", "output": "B", "pos": { "x": 50, "y": 200 } },
+        { "id": "in_C", "type": "INPUT", "output": "C", "pos": { "x": 50, "y": 300 } },
+
+        { "id": "G1", "type": "AND", "inputs": ["A", "B"], "output": "S1", "pos": { "x": 200, "y": 150 } },
+        { "id": "G2", "type": "NOT", "inputs": ["C"], "output": "S2", "pos": { "x": 200, "y": 300 } },
+        { "id": "G3", "type": "OR", "inputs": ["S1", "S2"], "output": "OUT", "pos": { "x": 350, "y": 225 } }
+    ]
+}
+    </textarea>
+
+<button id="drawButton">図を描画</button>
+<button id="clearButton">クリア</button>
+
+<div id="svgContainer">
+    <svg id="circuitSVG" width="800" height="600"></svg>
+</div>
+
+<div class="download-controls">
+    ダウンロード形式:
+    <select id="downloadFormat">
+        <option value="svg">SVG</option>
+        <option value="png">PNG</option>
+        <option value="jpg">JPG</option>
+    </select>
+    <button id="downloadButton">ダウンロード</button>
+</div>
+
+<details>
+    <summary>回路定義の書式について</summary>
+    <p>テキストエリアには、回路構造をJavaScriptのオブジェクトリテラル形式（JSON形式でも可）で記述します。全体の構造は以下のようになります。</p>
+    <pre class="json-code">{
+    "gates": [
+        { /* ゲート1の定義 */ },
+        { /* ゲート2の定義 */ },
+        // ...
+    ]
+}</pre>
+    <p><code>"gates"</code> 配列の各要素が、回路を構成する一つの要素（論理ゲートや入力）を定義するオブジェクトです。各ゲート定義オブジェクトは、通常以下のプロパティを持ちます。</p>
+    <ul class="property-list">
+        <li>
+            <strong><code>"id"</code></strong> (必須):
+            そのゲートを回路内で一意に識別するための文字列です（例: `"G1"`, `"in_A"`）。主に内部処理や、INPUTゲートの図に表示するために使われます。接続は信号名で行います。
+        </li>
+        <li>
+            <strong><code>"type"</code></strong> (必須):
+            その要素の種類を指定します。現在サポートされているのは <code>"INPUT"</code>, <code>"AND"</code>, <code>"OR"</code>, <code>"NOT"</code>, <code>"XOR"</code> です。
+        </li>
+        <li>
+            <strong><code>"pos"</code></strong> (必須):
+            図を描画する際に、そのゲートの左上隅を配置する座標を指定するオブジェクトです。<br>
+            書式: <code>{ "x": 数値, "y": 数値 }</code> （例: <code>{ "x": 100, "y": 50 }</code>）。
+        </li>
+        <li>
+            <strong><code>"inputs"</code></strong> (<code>"INPUT"</code> タイプ以外で必須):
+            そのゲートへの入力となる信号名の配列です。<br>
+            書式: <code>["信号名1", "信号名2", ...]</code> （例: <code>["A", "B"]</code>）。<br>
+            配列の要素は、他のゲートの <code>"output"</code> で定義された信号名である必要があります。NOTゲートの場合は配列に1つの信号名を指定します。INPUTタイプには不要です。
+        </li>
+        <li>
+            <strong><code>"output"</code></strong> (<code>"INPUT"</code> タイプ、および後続に接続があるゲートで必須):
+            そのゲートからの出力信号名を指定する文字列です。<br>
+            書式: <code>"信号名"</code> （例: <code>"S1"</code>）。<br>
+            この信号名が他のゲートの <code>"inputs"</code> で参照されることで接続されます。INPUTタイプのゲートはこのプロパティで信号名を定義します。
+        </li>
+    </ul>
+    <p>例として、初期表示されている定義は <code>(A AND B) OR (NOT C)</code> という論理式を表しています。</p>
+</details>
+
+<h2 class="section-title">論理記号について</h2>
+<p>
+    論理回路では、特定の論理演算を表すために標準的な図記号（シンボル）が使用されます。ここでは代表的な記号とその機能について、真理値表を用いて解説します。「0」は偽（Low）、「1」は真（High）を表します。
+</p>
+
+<ul class="logic-symbols-list">
+    <li>
+        <strong>AND (論理積)</strong><br>
+        複数の入力がすべて「1」の場合に限り、出力が「1」となります。
+        <table class="truth-table">
+            <thead>
+            <tr><th>A</th><th>B</th><th>Y</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>1</td><td>0</td></tr>
+            <tr><td>1</td><td>0</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td></tr>
+            </tbody>
+        </table>
+    </li>
+    <li>
+        <strong>OR (論理和)</strong><br>
+        複数の入力のうち、少なくとも一つが「1」の場合に、出力が「1」となります。
+        <table class="truth-table">
+            <thead>
+            <tr><th>A</th><th>B</th><th>Y</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td></tr>
+            </tbody>
+        </table>
+    </li>
+    <li>
+        <strong>XOR (排他的論理和)</strong><br>
+        複数の入力のうち、奇数個だけが「1」の場合に、出力が「1」となります。2入力の場合は、入力が異なる値（0と1）のときに限り出力が「1」になります。
+        <table class="truth-table">
+            <thead>
+            <tr><th>A</th><th>B</th><th>Y</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>0</td><td>0</td><td>0</td></tr>
+            <tr><td>0</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>0</td></tr>
+            </tbody>
+        </table>
+        ※ 一般的な回路図では、ORゲートに似た記号で、入力側に弧が追加されます。このツールでは単純な矩形にテキスト表示しています。
+    </li>
+    <li>
+        <strong>NOT (論理否定/インバータ)</strong><br>
+        入力が「1」ならば出力は「0」、入力が「0」ならば出力は「1」となる演算です。入力は常に1つです。
+        <table class="truth-table">
+            <thead>
+            <tr><th>A</th><th>Y</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>0</td></tr>
+            </tbody>
+        </table>
+        ※ NOTゲートは出力側に小さな丸（バブル）が付きます。これは反転機能を示します。
+    </li>
+    <li>
+        <strong>INPUT / OUTPUT</strong><br>
+        回路への入力信号元（INPUT）や、回路からの出力信号先（OUTPUT）を示すために使用される記号です。ツールでは入力のみ簡易的にサポートしています。
+    </li>
+</ul>
+<p>
+    これらの基本的な論理ゲートを組み合わせることで、フリップフロップ、加算器、CPUといった複雑なデジタル回路を構成することができます。
+</p>
+
+
+<script>
+    const circuitDefinitionTextarea = document.getElementById('circuitDefinition');
+    const drawButton = document.getElementById('drawButton');
+    const clearButton = document.getElementById('clearButton');
+    const svgElement = document.getElementById('circuitSVG');
+    const downloadFormatSelect = document.getElementById('downloadFormat');
+    const downloadButton = document.getElementById('downloadButton');
+
+    const gateSpecs = {
+        AND: { width: 60, height: 40, pinOffset: { input: [{ x: 0, y: 10 }, { x: 0, y: 30 }], output: { x: 60, y: 20 } }, text: 'AND' },
+        OR: { width: 60, height: 40, pinOffset: { input: [{ x: 0, y: 10 }, { x: 0, y: 30 }], output: { x: 60, y: 20 } }, text: 'OR' },
+        XOR: { width: 60, height: 40, pinOffset: { input: [{ x: 0, y: 10 }, { x: 0, y: 30 }], output: { x: 60, y: 20 } }, text: 'XOR' },
+        NOT: { width: 40, height: 40, pinOffset: { input: [{ x: 0, y: 20 }], output: { x: 40, y: 20 } }, text: 'NOT', hasBubble: true },
+        INPUT: { width: 30, height: 30, pinOffset: { input: [], output: { x: 30, y: 15 } }, text: 'IN' }
+    };
+
+    function drawGate(svg, gate, spec) {
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        group.setAttribute('transform', `translate(${gate.pos.x}, ${gate.pos.y})`);
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('width', spec.width);
+        rect.setAttribute('height', spec.height);
+        rect.classList.add('gate');
+        group.appendChild(rect);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', spec.width / 2);
+        text.setAttribute('y', spec.height / 2);
+        text.textContent = spec.text || gate.type;
+        text.classList.add('gate-text');
+        group.appendChild(text);
+
+        if (gate.type === 'INPUT') {
+            const idText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            idText.setAttribute('x', spec.width / 2);
+            idText.setAttribute('y', spec.height / 2 + 15);
+            idText.textContent = gate.id;
+            idText.classList.add('gate-text');
+            group.appendChild(idText);
+        }
+
+        if (spec.pinOffset.input) {
+            spec.pinOffset.input.forEach(offset => {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', offset.x);
+                line.setAttribute('y1', offset.y);
+                line.setAttribute('x2', offset.x - 10);
+                line.setAttribute('y2', offset.y);
+                line.classList.add('pin-line');
+                group.appendChild(line);
+            });
+        }
+
+        if (spec.pinOffset.output) {
+            const offset = spec.pinOffset.output;
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', offset.x);
+            line.setAttribute('y1', offset.y);
+            line.setAttribute('x2', offset.x + 10);
+            line.setAttribute('y2', offset.y);
+            line.classList.add('pin-line');
+            group.appendChild(line);
+        }
+
+        if (spec.hasBubble) {
+            const bubbleR = 5;
+            const bubble = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bubble.setAttribute('cx', spec.pinOffset.output.x + 5);
+            bubble.setAttribute('cy', spec.pinOffset.output.y);
+            bubble.setAttribute('r', bubbleR);
+            bubble.setAttribute('fill', 'none');
+            bubble.setAttribute('stroke', 'black');
+            bubble.setAttribute('stroke-width', 1);
+            group.appendChild(bubble);
+
+            const outputLine = group.querySelector('.pin-line[x2="' + (spec.pinOffset.output.x + 10) + '"]');
+            if (outputLine) {
+                outputLine.setAttribute('x2', spec.pinOffset.output.x + bubbleR);
+            }
+        }
+
+        group.setAttribute('data-gate-id', gate.id);
+        svg.appendChild(group);
+    }
+
+    function drawConnection(svg, startPos, endPos) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', startPos.x);
+        line.setAttribute('y1', startPos.y);
+        line.setAttribute('x2', endPos.x);
+        line.setAttribute('y2', endPos.y);
+        line.classList.add('connection');
+        svg.appendChild(line);
+    }
+
+    function drawCircuit() {
+        const svg = svgElement;
+        svg.innerHTML = '';
+
+        let circuit;
+        try {
+            circuit = JSON.parse(circuitDefinitionTextarea.value);
+            if (!circuit || !Array.isArray(circuit.gates)) {
+                throw new Error("Invalid circuit structure: must be an object with a 'gates' array.");
+            }
+        } catch (e) {
+            alert("回路定義のJSON形式が不正です:\n" + e.message);
+            console.error(e);
+            return;
+        }
+
+        const gates = circuit.gates;
+
+        gates.forEach(gate => {
+            const spec = gateSpecs[gate.type];
+            if (!spec) {
+                console.warn(`Unknown gate type: ${gate.type}. Skipping.`);
+                return;
+            }
+            drawGate(svg, gate, spec);
+        });
+
+        function getGateInfo(gateId) {
+            const gateElement = svg.querySelector(`g[data-gate-id="${gateId}"]`);
+            if (!gateElement) return null;
+
+            const gate = gates.find(g => g.id === gateId);
+            if (!gate) return null;
+
+            const spec = gateSpecs[gate.type];
+            if (!spec) return null;
+
+            const transform = gateElement.transform.baseVal.consolidate();
+            const matrix = transform ? transform.matrix : svg.createSVGMatrix();
+            const absX = matrix.e;
+            const absY = matrix.f;
+
+            return {
+                element: gateElement,
+                gate: gate,
+                spec: spec,
+                absPos: { x: absX, y: absY }
+            };
+        }
+
+        gates.forEach(targetGate => {
+            const targetGateInfo = getGateInfo(targetGate.id);
+            if (!targetGateInfo || !targetGateInfo.gate.inputs) return;
+
+            targetGateInfo.gate.inputs.forEach((inputSignal, index) => {
+                const sourceGateInfo = gates.map(g => getGateInfo(g.id)).find(sourceInfo =>
+                    sourceInfo && sourceInfo.gate.output === inputSignal
+                );
+
+                if (sourceGateInfo) {
+                    const sourceSpec = sourceGateInfo.spec;
+                    const sourceAbsPos = sourceGateInfo.absPos;
+                    const sourceOutputPinOffset = sourceSpec.hasBubble
+                        ? { x: sourceSpec.pinOffset.output.x + 10, y: sourceSpec.pinOffset.output.y }
+                        : sourceSpec.pinOffset.output;
+                    const startPos = {
+                        x: sourceAbsPos.x + sourceOutputPinOffset.x,
+                        y: sourceAbsPos.y + sourceOutputPinOffset.y
+                    };
+
+                    const targetSpec = targetGateInfo.spec;
+                    const targetAbsPos = targetGateInfo.absPos;
+                    const targetInputPinOffset = targetSpec.pinOffset.input[index];
+                    const endPos = {
+                        x: targetAbsPos.x + targetInputPinOffset.x - 10,
+                        y: targetAbsPos.y + targetInputPinOffset.y
+                    };
+
+                    drawConnection(svg, startPos, endPos);
+
+                } else {
+                    console.warn(`Signal "${inputSignal}" connected to ${targetGate.id} input ${index} has no source gate.`);
+                }
+            });
+        });
+
+        let maxX = 0, maxY = 0;
+        gates.forEach(gate => {
+            const spec = gateSpecs[gate.type];
+            if (spec) {
+                maxX = Math.max(maxX, gate.pos.x + spec.width + 20);
+                maxY = Math.max(maxY, gate.pos.y + spec.height + 20);
+            }
+        });
+        svg.setAttribute('width', Math.max(800, maxX));
+        svg.setAttribute('height', Math.max(600, maxY));
+    }
+
+    function downloadSVG(svg, format = 'svg') {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+
+        const downloadLink = document.createElement('a');
+        downloadLink.download = 'circuit.' + format;
+
+        if (format === 'svg') {
+            downloadLink.href = URL.createObjectURL(svgBlob);
+            downloadLink.click();
+            URL.revokeObjectURL(downloadLink.href);
+        } else {
+            const canvas = document.createElement('canvas');
+            const svgWidth = svg.getAttribute('width') || 800;
+            const svgHeight = svg.getAttribute('height') || 600;
+            canvas.width = svgWidth;
+            canvas.height = svgHeight;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#f9f9f9';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const img = new Image();
+            const svgUrl = URL.createObjectURL(svgBlob);
+
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+                URL.revokeObjectURL(svgUrl);
+
+                canvas.toBlob(function(blob) {
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.click();
+                    URL.revokeObjectURL(downloadLink.href);
+                }, 'image/' + format, 0.9);
+            };
+
+            img.onerror = function(err) {
+                console.error("Failed to load SVG as image for Canvas:", err);
+                alert("画像変換に失敗しました。");
+                URL.revokeObjectURL(svgUrl);
+            }
+
+            img.src = svgUrl;
+        }
+    }
+
+    drawButton.addEventListener('click', drawCircuit);
+    clearButton.addEventListener('click', () => {
+        svgElement.innerHTML = '';
+        svgElement.setAttribute('width', 800);
+        svgElement.setAttribute('height', 600);
+    });
+    downloadButton.addEventListener('click', () => {
+        const selectedFormat = downloadFormatSelect.value;
+        downloadSVG(svgElement, selectedFormat);
+    });
+
+    drawCircuit();
+
+</script>
+
+</body>
+</html>
