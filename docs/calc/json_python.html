@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"><title>JSON / Python Converter</title>
+    <style>
+        body{font-family:sans-serif;margin:0;padding:20px;background-color:#f0f0f0;}
+        h1{text-align:center;margin-bottom:20px;font-size:2em;font-weight:bold;}
+        .converter-container{display:flex;gap:20px;margin-bottom:20px;}
+        .text-area-container{flex-grow:1;display:flex;flex-direction:column;box-shadow:0 2px 5px rgba(0,0,0,.1);background-color:#fff;}
+        textarea{flex-grow:1;padding:15px;border:none;resize:vertical;min-height:400px;font-family:'Consolas','Monaco','Andale Mono','Ubuntu Mono',monospace;font-size:14px;outline:none;line-height:1.5;}
+        .button-container{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:0 10px;}
+        button{display:flex;align-items:center;justify-content:center;padding:10px 20px;border:1px solid #ccc;background-color:#eee;cursor:pointer;font-size:1em;border-radius:4px;min-width:120px;transition:background-color .2s ease;}
+        button:hover{background-color:#ddd;}
+        button:active{background-color:#ccc;}
+        .arrow{margin:0 5px;}
+        .description{margin-top:20px;padding:15px;border-top:1px solid #ccc;font-size:.9em;color:#555;background-color:#fff;box-shadow:0 -2px 5px rgba(0,0,0,.05);}
+    </style>
+</head>
+<body>
+<h1>JSON / Python Converter</h1>
+<div class="converter-container">
+    <div class="text-area-container"><textarea id="jsonInput" placeholder="JSONを入力してください..."></textarea></div>
+    <div class="button-container"><button id="jsonToPythonBtn">JSON <span class="arrow">→</span> Python</button></div>
+    <div class="text-area-container"><textarea id="output" placeholder="Pythonコードがここに表示されます..." readonly></textarea></div>
+</div>
+<div class="description">
+    <h2>説明</h2>
+    <p>左側のテキストエリアにJSONを入力してください。</p>
+    <ul><li><strong>JSON → Python:</strong> 左側のJSONからPythonのデータクラス（dataclassesモジュール使用）のコードを生成し、右側のテキストエリアに表示します。</li></ul>
+    <p><strong>制限事項:</strong></p>
+    <ul>
+        <li>JSONの整形機能、圧縮機能、Kotlin関連の機能は提供していません。</li>
+        <li>Minecraftの`.dat`ファイル（NBTバイナリ形式）の読み書き・変換機能は、ブラウザのJavaScript単独での実装が技術的に困難なため提供していません。</li>
+        <li>JSON → Python 変換は、Pythonのdataclassesモジュールを使用します（Python 3.7以降が必要です）。</li>
+        <li>変換は基本的なJSON構造（プリミティブ型、ネストされたオブジェクト、配列）にのみ対応しており、より複雑なケース（例: 混合型配列、多態性、カスタムオブジェクトのマッピングなど）には対応していません。</li>
+        <li>JSONのキー名は、Pythonの命名規則（スネークケース）に簡易的に変換されます。予約語や数字で始まるキー名には対応が必要な場合があります（基本的な対応は含まれています）。</li>
+    </ul>
+</div>
+<script>
+    const a=new Set(['False','None','True','and','as','assert','async','await','break','class','continue','def','del','elif','else','except','finally','for','from','global','if','import','in','is','lambda','nonlocal','not','or','pass','raise','return','try','while','with','yield']);
+    document.getElementById('jsonToPythonBtn').addEventListener('click',function(){
+        const b=document.getElementById('jsonInput').value,c=document.getElementById('output');
+        try{
+            const d=JSON.parse(b);
+            let e='';
+            e+='from dataclasses import dataclass\nfrom typing import List, Optional, Any\n\n';
+            if(typeof d!=='object'||d===null||Array.isArray(d)){e+=f(d,"root_data");}
+            else{e+=g(d,"RootData");}
+            c.value=e;c.style.color='black';
+        }catch(h){c.value='JSONからPythonへの変換エラー:\n'+h.message;c.style.color='red';}
+    });
+    function f(b,c){
+        const d=j(c);
+        if(b===null)return`${d}: Optional[Any] = None`;
+        else if(Array.isArray(b)){
+            if(b.length===0)return`${d}: List[Any] = []`;
+            const e=b[0],h=i(e);
+            if(typeof e==='object'&&e!==null&&!Array.isArray(e)){
+                const k=l(d)+"Item";const m=g(e,k);
+                return`${m}\n\n${d}: List[${k}]`;
+            }else{return`${d}: List[${h}]`;}
+        }else{
+            const n=i(b);
+            const o=typeof b==='string'?`"${b.replace(/"/g,'\\"')}"`:typeof b==='number'?b:typeof b==='boolean'?b:'';
+            return`${d}: ${n} = ${o}`;
+        }
+    }
+    function g(b,c){
+        if(typeof b!=='object'||b===null||Array.isArray(b)){return`# Error: Expected an object for class ${c}, but got ${typeof b}`; }
+        const d=l(j(c));let e=`@dataclass\nclass ${d}:\n`;let f='',p='';
+        if(Object.keys(b).length===0){p+='    pass\n';}else{
+            for(const h in b){
+                if(Object.prototype.hasOwnProperty.call(b,h)){
+                    const i=b[h],q=j(h),r=i===null;
+                    let s,t='';
+                    if(typeof i==='object'&&i!==null){
+                        if(Array.isArray(i)){
+                            if(i.length>0){
+                                const u=i[0],v=i(u);
+                                if(typeof u==='object'&&u!==null&&!Array.isArray(u)){
+                                    const w=l(q)+"Item";f+=g(u,w)+"\n\n";s=`List[${w}]`;
+                                    if(r)s=`Optional[${s}]`;t=r?' = None':' = []';
+                                }else{s=`List[${v}]`;if(r)s=`Optional[${s}]`;t=r?' = None':' = []';}
+                            }else{s=`List[Any]`;if(r)s=`Optional[${s}]`;t=r?' = None':' = []';}
+                        }else{
+                            const x=l(q);f+=g(i,x)+"\n\n";s=x;
+                            if(r)s=`Optional[${s}]`;t=r?' = None':'';
+                        }
+                    }else{s=i(i);if(r)s=`Optional[${s}]`;if(r)t=' = None';else t='';}
+                    p+=`    ${q}: ${s}${t}\n`;
+                }
+            }
+        }
+        return f+e+p;
+    }
+    function i(a){
+        if(a===null)return'Any';
+        const b=typeof a;
+        switch(b){case'string':return'str';case'number':return Number.isInteger(a)?'int':'float';case'boolean':return'bool';case'object':if(Array.isArray(a))return'List[Any]';return'Any';default:return'Any';}
+    }
+    function j(b){
+        if(!b)return'';b=b.replace(/([A-Z])/g,'_$1').toLowerCase().replace(/-/g,'_').replace(/__+/g,'_').replace(/^_+|_+$/g,'');
+        if(/^\d/.test(b))b="_"+b;
+        if(a.has(b))b=b+'_';
+        return b;
+    }
+    function l(a){
+        if(!a)return'';if(a.startsWith('_')&&a.length>1){return'_'+a.charAt(1).toUpperCase()+a.slice(2);}
+        return a.charAt(0).toUpperCase()+a.slice(1);
+    }
+    document.getElementById('jsonInput').value=`{
+"widget": {
+"debug": "on",
+"window": {
+"name": "main_window",
+"width": 640,
+"height": 480
+},
+"image": {
+"src": "images/sun.png",
+"name": "sun",
+"hOffset": 250,
+"vOffset": 250,
+"alignment": "center"
+},
+"text": {
+"data": "Click Here",
+"size": 12,
+"style": "bold"
+}
+}
+}`;
+</script>
+</body>
+</html>
