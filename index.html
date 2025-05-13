@@ -55,6 +55,23 @@
         .tool-list li strong {
             color: #28a745;
         }
+        .tool-screenshot {
+            text-align: center; /* 画像を中央寄せ */
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .tool-screenshot img {
+            max-width: 100%; /* コンテナ幅を超えないように */
+            height: auto; /* アスペクト比を維持 */
+            border: 1px solid #ddd; /* 画像に枠線 */
+            border-radius: 4px; /* 角を少し丸く */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 軽い影 */
+        }
+        .tool-screenshot figcaption {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 8px;
+        }
         .cta-link {
             display: inline-block;
             margin: 20px 0;
@@ -80,14 +97,6 @@
             border-radius: 3px;
             font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
         }
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6;
-            font-size: 0.9em;
-            color: #6c757d;
-        }
         a {
             color: #007bff;
             text-decoration: none;
@@ -105,7 +114,7 @@
     </header>
 
     <p>
-        このサイトは、プログラマーやウェブ開発者、データ処xw理を行う方々にとって非常に便利なオンラインツールを多数提供しています。
+        このサイトは、プログラマーやウェブ開発者、データ処理を行う方々にとって非常に便利なオンラインツールを多数提供しています。
         ソフトウェアのインストールは不要で、ブラウザからアクセスするだけで、様々なユーティリティをすぐに利用できます。
     </p>
 
@@ -129,7 +138,13 @@
     <p>以下のような便利なツールが用意されています（2024年5月時点）。</p>
     <ul class="tool-list">
         <li><strong>バイナリ計算 (binary.html):</strong> 2進数の基本的な演算やビット操作を行えるツールです。</li>
-        <li><strong>dot言語サポート (dot/dot_viewer.html):</strong> GraphvizのDOT言語などで記述されたグラフ構造を、<a href="https://mermaid.js.org/" target="_blank" rel="noopener noreferrer">Mermaid.js</a> を利用してブラウザ上で視覚化・表示できます。</li>
+        <li>
+            <strong>dot言語サポート (dot/dot_viewer.html):</strong> GraphvizのDOT言語などで記述されたグラフ構造を、<a href="https://mermaid.js.org/" target="_blank" rel="noopener noreferrer">Mermaid.js</a> を利用してブラウザ上で視覚化・表示できます。
+            <figure class="tool-screenshot">
+                <img src="yoshinag-calc-screenshot.png" alt="yoshinag.github.io/calc/ のdot言語ビューアのスクリーンショット (Mermaid利用)">
+                <figcaption>図: dot言語ビューア（グラフ/図ビューア）の利用例。Mermaid記法でフローチャートを表示しています。</figcaption>
+            </figure>
+        </li>
         <li><strong>JSON to Kotlin (json_kotlin.html):</strong> JSON形式のデータから、Kotlinのデータクラスの雛形を自動生成します。</li>
         <li><strong>JSON to MySQL (json_mysql.html):</strong> JSONデータ構造を元に、MySQLのテーブル定義 (CREATE TABLE文) を生成するのに役立ちます。</li>
         <li><strong>JSON Prettify (json_prettify.html):</strong> 整形されていないJSON文字列を、インデントや改行を加えて見やすくフォーマットします。</li>
