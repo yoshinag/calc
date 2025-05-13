@@ -5,18 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>グラフ/図 ビューア</title>
     <link rel="stylesheet" href="dot_viewer.css">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1932463298924191"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1932463298924191"
+            crossorigin="anonymous"></script>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YP7BYDG752"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-YP7BYDG752');
-</script>
 <body>
 <div class="main-container">
     <h1>グラフ/図 ビューア</h1>
@@ -51,7 +42,12 @@
         <div class="splitter" id="splitter"></div>
 
         <div class="preview-pane" id="preview-pane">
-            <h2 id="preview-label">図:</h2>
+            <!-- ★★★★★ ここから変更 ★★★★★ -->
+            <div class="preview-header">
+                <h2 id="preview-label">図:</h2>
+                <button id="fullscreen-btn" title="全画面表示">全画面</button>
+            </div>
+            <!-- ★★★★★ ここまで変更 ★★★★★ -->
             <div id="graph-output">
                 <p>ライブラリを読み込み中です...</p>
             </div>
