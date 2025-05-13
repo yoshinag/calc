@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフ/図 ビューア</title>
+    <link rel="stylesheet" href="dot_viewer.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1932463298924191"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="main-container">
+    <h1>グラフ/図 ビューア</h1>
+
+    <button id="toggle-controls-btn" aria-expanded="true" aria-controls="controls-panel">設定を隠す</button>
+    <div class="controls" id="controls-panel">
+        <div class="control-group">
+            <label>記法を選択:</label>
+            <input type="radio" name="notation" value="dot" id="radio-dot"> <label for="radio-dot" style="font-weight:normal; margin-right:10px;">DOT</label>
+            <input type="radio" name="notation" value="mermaid" id="radio-mermaid" checked> <label for="radio-mermaid" style="font-weight:normal;">Mermaid</label>
+        </div>
+        <div class="control-group">
+            <label for="template-select">テンプレート:</label>
+            <select id="template-select"></select>
+        </div>
+        <div class="control-group">
+            <label for="download-format">ダウンロード:</label>
+            <select id="download-format">
+                <option value="png">PNG</option>
+                <option value="svg">SVG</option>
+            </select>
+            <button id="download-btn">ダウンロード</button>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="editor-pane" id="editor-pane">
+            <label for="code-input" id="code-input-label">コードをここに記述:</label>
+            <textarea id="code-input"></textarea>
+        </div>
+
+        <div class="splitter" id="splitter"></div>
+
+        <div class="preview-pane" id="preview-pane">
+            <!-- ★★★★★ ここから変更 ★★★★★ -->
+            <div class="preview-header">
+                <h2 id="preview-label">図:</h2>
+                <button id="fullscreen-btn" title="全画面表示">全画面</button>
+            </div>
+            <!-- ★★★★★ ここまで変更 ★★★★★ -->
+            <div id="graph-output">
+                <p>ライブラリを読み込み中です...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script defer src="dot_viewer_templates.js"></script>
+<script defer src="dot_viewer.js"></script>
+</body>
+</html>
