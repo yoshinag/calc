@@ -154,7 +154,7 @@ const templates = {
         name: "Mermaid: Gitグラフ",
         type: "mermaid",
         code: `gitGraph
-   commit id: "เริ่มต้น"
+   commit id: "A0"
    branch feature-A
    commit id: "A1"
    commit id: "A2"
@@ -169,6 +169,6 @@ const templates = {
    commit id: "B2"
    checkout main
    merge feature-B id: "merge-B"
-   commit id: "สิ้นสุด"`
+   commit id: "C"`
     }
 };
