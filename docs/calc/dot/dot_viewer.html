@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>グラフ/図 ビューア</title>
+    <title>dot/Mermaid viewer</title>
     <link rel="stylesheet" href="dot_viewer.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1932463298924191"
             crossorigin="anonymous"></script>
@@ -21,8 +21,6 @@
 </script>
 <body>
 <div class="main-container">
-    <h1>グラフ/図 ビューア</h1>
-
     <button id="toggle-controls-btn" aria-expanded="true" aria-controls="controls-panel">設定を隠す</button>
     <div class="controls" id="controls-panel">
         <div class="control-group">
@@ -53,12 +51,9 @@
         <div class="splitter" id="splitter"></div>
 
         <div class="preview-pane" id="preview-pane">
-            <!-- ★★★★★ ここから変更 ★★★★★ -->
             <div class="preview-header">
-                <h2 id="preview-label">図:</h2>
                 <button id="fullscreen-btn" title="全画面表示">全画面</button>
             </div>
-            <!-- ★★★★★ ここまで変更 ★★★★★ -->
             <div id="graph-output">
                 <p>ライブラリを読み込み中です...</p>
             </div>
