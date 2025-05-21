@@ -1,0 +1,283 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Global Controls --- */
+.global-controls {
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+#toggle-all-panels-btn {
+    background-color: #6c757d;
+    color: white; /* アイコンの色 (SVGのfill="currentColor"のため) */
+    padding: 6px 8px; /* アイコンに合わせてパディング調整 */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    font-size: 20px; /* アイコンの基準サイズ (SVG内のwidth/heightを1emにすると連動) */
+    line-height: 1; /* SVGの縦位置を中央揃えしやすくする */
+    display: inline-flex; /* SVGを中央揃えしやすくする */
+    align-items: center;    /* SVGを中央揃えしやすくする */
+    justify-content: center; /* SVGを中央揃えしやすくする */
+}
+#toggle-all-panels-btn:hover {
+    background-color: #5a6268;
+}
+/* SVGアイコン自体のスタイル */
+#toggle-all-panels-btn svg {
+    display: block; /* SVG要素の余計なマージンを防ぐ */
+    width: 1em;     /* ボタンのfont-sizeに連動 */
+    height: 1em;    /* ボタンのfont-sizeに連動 */
+}
+
+
+/* --- Panels --- */
+.panels-wrapper {
+    /* このラッパーは主に構造化のため。特別なスタイルは必須ではない */
+}
+
+.settings-panel,
+.code-panel,
+.output-panel {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    overflow: hidden;
+    transition: max-height 0.35s ease-in-out, opacity 0.3s ease-in-out,
+    padding-top 0.35s ease-in-out, padding-bottom 0.35s ease-in-out,
+    margin-bottom 0.35s ease-in-out, border-width 0.35s ease-in-out;
+}
+.output-panel { /* output-panelは通常時、graph-containerのpaddingを担当 */
+    padding: 0; /* graph-containerにpaddingを移譲 */
+}
+
+
+.settings-panel h2,
+.code-panel h2,
+.output-panel h3 { /* output-panelはh3のままだったと仮定、HTMLに合わせて調整ください */
+    margin-top: 0;
+    color: #333;
+}
+
+
+/* --- Settings Panel Content --- */
+.settings-panel .settings-content {
+    /* No specific styles needed here if parent panel handles visibility */
+}
+
+
+/* --- General Form Elements --- */
+label {
+    margin-right: 10px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+input[type="radio"],
+select,
+textarea,
+#download-btn {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+input[type="radio"] {
+    margin-right: 3px;
+}
+select {
+    margin-right: 8px;
+}
+
+
+textarea {
+    width: calc(100% - 24px);
+    min-height: 200px;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+#download-btn {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+#download-btn:hover {
+    background-color: #4cae4c;
+}
+
+
+.settings-panel > .settings-content > div {
+    margin-bottom: 15px;
+}
+.settings-panel > .settings-content > div:last-child {
+    margin-bottom: 0;
+}
+
+
+/* --- Graph Output --- */
+#graph-container {
+    margin-top: 0; /* output-panelから移管 */
+    border: 1px dashed #ccc;
+    padding: 20px;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    overflow: auto;
+    box-sizing: border-box; /* padding と border を width/height に含める */
+}
+
+#graph-container svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: auto;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    white-space: pre-wrap;
+    text-align: left;
+    padding: 10px;
+    background-color: #ffebeb;
+    border: 1px solid #ffc6c6;
+    border-radius: 4px;
+}
+
+
+/* --- Hidden Class for Panels --- */
+.settings-panel.hidden,
+.code-panel.hidden {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-width: 0;
+}
+
+/* --- Fullscreen Button Style (from previous) --- */
+#toggle-fullscreen-btn {
+    background-color: #007bff; /* A different color for distinction */
+    color: white;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    font-size: 20px; /* Icon base size */
+    line-height: 1; /* Align icon properly */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px; /* Space from the other button */
+}
+#toggle-fullscreen-btn:hover {
+    background-color: #0056b3;
+}
+#toggle-fullscreen-btn svg {
+    display: block;
+    width: 1em;     /* Button's font-sizeに連動 */
+    height: 1em;    /* Button's font-sizeに連動 */
+}
+
+/* --- Page-level Fullscreen for #graph-container Styles --- */
+body.graph-view-fullscreen {
+    overflow: hidden !important; /* Prevent scrollbars on body */
+}
+
+/* Hide everything in .container except .output-panel and .global-controls */
+body.graph-view-fullscreen .container > *:not(.output-panel):not(.global-controls) {
+    display: none !important;
+}
+
+/* Hide .output-panel's default styling and ensure it doesn't interfere with #graph-container */
+body.graph-view-fullscreen .output-panel {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background-color: transparent !important; /* #graph-container will provide background */
+    /* Keep overflow: hidden if it was there, otherwise it's not strictly needed here */
+}
+
+
+/* Make #graph-container itself fullscreen */
+body.graph-view-fullscreen #graph-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 10000 !important; /* Below global controls */
+    background-color: #f9f9f9 !important; /* Ensure it has a background */
+    border: none !important; /* Remove border in fullscreen */
+    border-radius: 0 !important;
+    padding: 20px !important; /* Keep some padding for the graph itself */
+    margin: 0 !important;
+    min-height: initial !important; /* Override original min-height */
+    /* display: flex, justify-content, align-items, overflow: auto should be preserved */
+}
+
+body.graph-view-fullscreen #graph-container svg {
+    max-width: calc(100% - 40px) !important; /* Account for padding */
+    max-height: calc(100% - 40px) !important; /* Account for padding */
+}
+
+/* Reposition global-controls in fullscreen mode */
+body.graph-view-fullscreen .global-controls {
+    position: fixed !important;
+    top: 15px;
+    right: 15px;
+    z-index: 10002 !important; /* Above graph-container */
+    background-color: rgba(40, 40, 40, 0.6);
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    text-align: right;
+    margin-bottom: 0;
+}
+
+/* Hide panel toggle button in fullscreen */
+body.graph-view-fullscreen .global-controls #toggle-all-panels-btn {
+    display: none !important;
+}
+
+body.graph-view-fullscreen #toggle-fullscreen-btn {
+    background-color: #dc3545; /* Exit color */
+}
+body.graph-view-fullscreen #toggle-fullscreen-btn:hover {
+    background-color: #c82333;
+}
+
+/* Ensure .container itself doesn't constrain the fixed position elements */
+body.graph-view-fullscreen .container {
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background-color: transparent !important; /* Or same as body bg */
+}
