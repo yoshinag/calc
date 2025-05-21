@@ -1,19 +1,105 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>calc</title>
     <style>
-        body{margin:0;padding:0;font-family:sans-serif;display:flex;height:100vh;overflow:hidden;}
-        .sidebar{width:250px;background-color:#f0f0f0;padding:15px;box-sizing:border-box;overflow-y:auto;flex-shrink:0;}
-        .sidebar h1{margin-top:0;font-size:1.5em;color:#333;}
-        .sidebar ul{list-style:none;padding:0;margin:0;}
-        .sidebar li{margin-bottom:8px;}
-        .sidebar a{text-decoration:none;color:#007bff;display:block;padding:5px;border-radius:3px;}
-        .sidebar a:hover{background-color:#e9e9e9;color:#0056b3;}
-        .content{flex-grow:1;}
-        .content iframe{width:100%;height:100%;border:none;}
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f0f0f0;
+            padding: 15px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            flex-shrink: 0;
+            position: relative; /* For positioning the toggle button inside or relative to it */
+            transition: width 0.3s ease, padding 0.3s ease, opacity 0.3s ease; /* Added opacity */
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            padding: 0 0; /* Keep vertical padding if items are just hidden, or 0 if fully collapsed */
+            opacity: 0;   /* Fade out content */
+            overflow: hidden; /* Hide content when collapsed */
+        }
+
+        .sidebar h1 {
+            margin-top: 0;
+            font-size: 1.5em;
+            color: #333;
+            white-space: nowrap; /* Prevent h1 from wrapping when sidebar shrinks */
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            white-space: nowrap; /* Prevent list items from wrapping */
+        }
+
+        .sidebar li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #007bff;
+            display: block;
+            padding: 5px;
+            border-radius: 3px;
+            white-space: nowrap; /* Prevent links from wrapping */
+        }
+
+        .sidebar a:hover {
+            background-color: #e9e9e9;
+            color: #0056b3;
+        }
+
+        .content-wrapper { /* New wrapper for content and toggle button */
+            flex-grow: 1;
+            display: flex; /* To position toggle button and iframe */
+            position: relative; /* For absolute positioning of toggle button */
+        }
+
+        .content {
+            flex-grow: 1;
+            height: 100%;
+        }
+
+        .content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #sidebar-toggle-btn {
+            position: absolute;
+            left: 0; /* Position at the left of the content-wrapper */
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 5px;
+            cursor: pointer;
+            z-index: 10;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            font-size: 18px; /* Adjust for icon size */
+            line-height: 1;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            transition: left 0.3s ease; /* Smooth transition when sidebar collapses */
+        }
+        /* Style for when sidebar is collapsed - button might need to adjust position or appearance */
+        /* This example keeps the button attached to the edge of the viewport or content area */
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1932463298924191"
             crossorigin="anonymous"></script>
@@ -29,7 +115,7 @@
 </script>
 <body>
 
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <h1>目次</h1>
     <ul>
         <li><a href="calc/dot/dot_viewer.html" target="contentFrame">dot言語サポート</a></li>
@@ -43,11 +129,44 @@
     </ul>
 </div>
 
-<div class="content">
-    <iframe name="contentFrame" src="calc/dot/dot_viewer.html"></iframe>
+<div class="content-wrapper">
+    <button id="sidebar-toggle-btn" title="サイドバー開閉"><</button> <!-- Initial icon set by JS -->
+    <div class="content">
+        <iframe name="contentFrame" src="calc/dot/dot_viewer.html"></iframe>
+    </div>
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const contentWrapper = document.querySelector('.content-wrapper'); // Needed if button moves with content edge
+
+        // Function to update button symbol and title
+        function updateToggleButton() {
+            if (sidebar.classList.contains('collapsed')) {
+                toggleBtn.innerHTML = '>'; // Icon for "open" (>)
+                toggleBtn.title = 'サイドバーを開く';
+            } else {
+                toggleBtn.innerHTML = '<'; // Icon for "close" (<)
+                toggleBtn.title = 'サイドバーを閉じる';
+            }
+        }
+
+        // Load sidebar state from localStorage
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+        updateToggleButton(); // Set initial button state
+
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            const currentlyCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', currentlyCollapsed);
+            updateToggleButton();
+        });
+    });
 </script>
 
 </body>
