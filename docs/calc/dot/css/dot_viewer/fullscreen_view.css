@@ -1,0 +1,78 @@
+/* css/dot_viewer/fullscreen_view.css */
+
+body.graph-view-fullscreen {
+    overflow: hidden !important; /* Prevent scrollbars on body */
+    background-color: #f9f9f9 !important; /* Match graph container bg for seamlessness */
+}
+
+/* Hide everything in .container except .output-panel and .global-controls */
+body.graph-view-fullscreen .container > *:not(.output-panel):not(.global-controls) {
+    display: none !important;
+}
+
+/* The main .container itself should become transparent and take no space effectively */
+body.graph-view-fullscreen .container {
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+}
+
+/* output-panel serves as a direct parent but should be 'invisible' in fullscreen */
+body.graph-view-fullscreen .output-panel {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background-color: transparent !important;
+    overflow: visible !important; /* Ensure it doesn't clip fixed #graph-container */
+}
+
+/* Make #graph-container itself fill the viewport */
+body.graph-view-fullscreen #graph-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 10000 !important; /* Below global controls */
+    background-color: #f9f9f9 !important; /* Explicit background */
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 20px !important; /* Keep some padding for the graph content */
+    margin: 0 !important;
+    min-height: 0 !important; /* Override original min-height */
+    /* display: flex, justify-content, align-items, overflow: auto are preserved from its base style */
+}
+
+body.graph-view-fullscreen #graph-container svg {
+    /* Max dimensions should consider the padding of #graph-container */
+    max-width: calc(100% - 40px) !important; /* If #graph-container has 20px padding each side */
+    max-height: calc(100% - 40px) !important;/* If #graph-container has 20px padding each side */
+}
+
+/* Reposition .global-controls in fullscreen mode */
+body.graph-view-fullscreen .global-controls {
+    position: fixed !important;
+    top: 15px;
+    right: 15px;
+    z-index: 10002 !important; /* Above graph-container */
+    background-color: rgba(40, 40, 40, 0.6); /* Semi-transparent overlay */
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    text-align: right;
+    margin-bottom: 0; /* Override original margin */
+}
+
+/* Hide panel toggle button when graph view is fullscreen */
+body.graph-view-fullscreen .global-controls #toggle-all-panels-btn {
+    display: none !important;
+}
+
+/* Style the fullscreen toggle button to indicate "exit" state */
+body.graph-view-fullscreen #toggle-fullscreen-btn {
+    background-color: #dc3545; /* "Exit" color (e.g., red) */
+}
+body.graph-view-fullscreen #toggle-fullscreen-btn:hover {
+    background-color: #c82333;
+}

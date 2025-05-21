@@ -1,0 +1,62 @@
+/* css/dot_viewer/base.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- General Form Elements --- */
+label {
+    margin-right: 10px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+input[type="radio"],
+select,
+textarea, /* Generic textarea, specific ID styles in panels.css */
+#download-btn { /* Specific ID, but treated as a general form button here */
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+input[type="radio"] {
+    margin-right: 3px;
+}
+
+select {
+    margin-right: 8px;
+}
+
+textarea { /* Basic textarea reset/defaults */
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre;
+    line-height: 1.4;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+#download-btn {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+#download-btn:hover {
+    background-color: #4cae4c;
+}

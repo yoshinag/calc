@@ -1,0 +1,130 @@
+/* css/dot_viewer/panels.css */
+
+.panels-wrapper {
+    /* This wrapper is mainly for structure. No special style needed by default. */
+}
+
+.settings-panel,
+.code-panel,
+.output-panel {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    overflow: hidden; /* Important for collapse transition */
+    transition: max-height 0.35s ease-in-out, opacity 0.3s ease-in-out,
+    padding-top 0.35s ease-in-out, padding-bottom 0.35s ease-in-out,
+    margin-bottom 0.35s ease-in-out, border-width 0.35s ease-in-out;
+}
+
+/* Default panel padding, can be overridden by specific panels */
+.settings-panel,
+.code-panel { /* code-panelの全体的なpaddingは維持 */
+    padding: 15px;
+}
+
+/* Output panel often has specific padding needs (e.g., for graph-container) */
+.output-panel {
+    padding: 0; /* graph-container will handle its own padding */
+}
+
+
+.settings-panel h2,
+.output-panel h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* --- Code Panel Specifics --- */
+.code-panel {
+    padding-top: 15px; /* パネルヘッダーがあるので、上部パディングを戻す */
+    /* padding-left と padding-right はパネル全体の15pxが適用される */
+}
+
+.code-panel-header {
+    display: flex;
+    /* justify-content: space-between; を削除または変更 */
+    align-items: center; /* 縦方向中央揃えは維持 */
+    margin-bottom: 10px; /* Space between header and textarea */
+    /* padding: 15px 15px 0 15px; を削除 (パネルのpaddingに依存) */
+}
+
+.code-panel-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #333;
+    margin-right: 10px; /* 見出しとボタン群の間のスペース */
+}
+
+.code-actions {
+    /* このコンテナ自体は特にスタイル不要、ボタンのマージンで調整 */
+    /* display: flex; を追加してボタン間の配置を制御しても良い */
+    display: inline-flex; /* h2の隣に配置しやすくする */
+}
+
+.code-actions button {
+    background-color: transparent;
+    color: #555;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin-left: 8px; /* ボタン間のスペース */
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+/* 最初のボタンだけは左マージン不要にする場合 */
+.code-actions button:first-child {
+    margin-left: 0;
+}
+
+
+.code-actions button:hover {
+    background-color: #f0f0f0;
+    color: #333;
+    border-color: #bbb;
+}
+
+.code-actions button svg {
+    display: block;
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+}
+
+textarea#code-input {
+    width: 100%; /* パネルのpaddingを考慮するため、calcではなく100% */
+    min-height: 200px;
+    padding: 10px;
+    /* margin: 0 15px 15px 15px; を削除 (パネルのpaddingに依存) */
+    margin-top: 0; /* ヘッダーからのマージンはヘッダー側で制御 */
+    margin-bottom: 0; /* 下部もパネルのpaddingに依存 */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* paddingとborderをwidth/heightに含める */
+}
+
+
+/* --- Settings Panel Specific Content --- */
+.settings-panel .settings-content > div {
+    margin-bottom: 15px;
+}
+.settings-panel .settings-content > div:last-child {
+    margin-bottom: 0;
+}
+
+
+/* --- Hidden Class for Collapsible Panels --- */
+.settings-panel.hidden,
+.code-panel.hidden {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    border-width: 0 !important;
+}
